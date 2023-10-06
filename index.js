@@ -2,13 +2,43 @@ const express = require('express');
 const { createServer } = require('node:http');
 const { join } = require('node:path');
 const { Server } = require('socket.io');
+var mysql = require('mysql2');
+const path = require('path')
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: false }));
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
+const connection = mysql.createConnection({
+  host: '192.168.1.161', // Název nebo IP adresa serveru databáze
+  user: 'tomas.borowski', // Uživatelské jméno
+  password: 'tomasborowski55', // Heslo
+  database: 'tomas.borowski', // Název databáze
+  port: 3001
+})
+
+app.post('/signin', function (request, response, next) {
+ 
+  console.log(`Byl obdržen požadavek na vytvoření taulky s loginem: ${request.body.login}`)
+   
+    // Aktualizace záznamu v tabulce
+    const login = request.body.login; // ID záznamu, který chcete aktualizovat
+    
+    const sqlQuery = `CREATE TABLE ${login} LIKE timetable`;
+   
+    dbConnection.query(sqlQuery, (err, result) => {
+      if (err) {
+        console.error('Chyba při vytváření tabulky: ' + err.stack);
+        return;
+      }
+      console.log(`Tabulka s loginem: ${request.body.login} byla úspěšně vytvořena.`);
+    });
+  
+  });
 
 
-app.get('/', (req, res) => {
+app.get('/chat', (req, res) => {
   res.sendFile(join(__dirname, 'index.html'));
 });
 
