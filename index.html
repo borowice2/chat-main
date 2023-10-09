@@ -61,52 +61,54 @@
     #messages>li:nth-child(odd) {
       background: #efefef;
     }
+    label{margin-top: 7px;}
   </style>
 </head>
 <body>
-  <button onclick="signIn">login</button>
+  <!-- <button onclick="signIn">login</button> -->
   <ul id="messages"></ul>
   <form id="form" action="">
-    <input id="input" autocomplete="off" /><button>Send</button>
+    <!-- <label>jmeno</label><input id="jmeno"/> -->
+    <label>zprava: </label><input id="input" autocomplete="off" /><button>Send</button>
   </form>
   <script>
     const socket = io();
 
     const messages = document.getElementById('messages');
     const form = document.getElementById('form');
-    const input = document.getElementById('input');
+    const input =document.getElementById('input');
+ 
+    // function signIn() {
+    //   const url = '/signin'; // Nahraďte tímto URL adresu, na kterou chcete poslat POST požadavek
+    //   let login = prompt("Zadejte login")
+    //   const data = {
+    //     login: login,
+    //     // další data, která chcete odeslat
+    //   };
 
-    function signIn() {
-      const url = '/signin'; // Nahraďte tímto URL adresu, na kterou chcete poslat POST požadavek
-      let login = prompt("Zadejte login")
-      const data = {
-        login: login,
-        // další data, která chcete odeslat
-      };
+    //   const requestOptions = {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json', // Specifikujeme typ obsahu jako JSON
+    //       // další hlavičky, pokud jsou potřeba
+    //     },
+    //     body: JSON.stringify(data), // Převedeme objekt na JSON řetězec
+    //   };
 
-      const requestOptions = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', // Specifikujeme typ obsahu jako JSON
-          // další hlavičky, pokud jsou potřeba
-        },
-        body: JSON.stringify(data), // Převedeme objekt na JSON řetězec
-      };
-
-      fetch(url, requestOptions)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Chyba při odesílání požadavku');
-          }
-          return response.json(); // Přečteme odpověd jako JSON
-        })
-        .then(data => {
-          console.log('Úspěšně odesláno:', data);
-        })
-        .catch(error => {
-          console.error('Chyba:', error);
-        });
-    }
+    //   fetch(url, requestOptions)
+    //     .then(response => {
+    //       if (!response.ok) {
+    //         throw new Error('Chyba při odesílání požadavku');
+    //       }
+    //       return response.json(); // Přečteme odpověd jako JSON
+    //     })
+    //     .then(data => {
+    //       console.log('Úspěšně odesláno:', data);
+    //     })
+    //     .catch(error => {
+    //       console.error('Chyba:', error);
+    //     });
+    // }
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
