@@ -5,7 +5,7 @@ const { Server } = require('socket.io');
 var mysql = require('mysql2');
 const path = require('path')
 const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.urlencoded({ extended: false }));
 
 const app = express();
 const server = createServer(app);
