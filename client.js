@@ -1,24 +1,30 @@
+// Inicializace Socket.io na klientovi a navázání spojení se serverem
 const socket = io();
 
-    const messages = document.getElementById('messages');
-    const form = document.getElementById('form');
-    const input = document.getElementById('input');
+// Získání referencí na DOM prvky
+const messages = document.getElementById('messages'); // Element pro zobrazování zpráv
+const form = document.getElementById('form'); // Formulář pro odesílání zpráv
+const input = document.getElementById('input'); // Pole pro zadání textu zprávy
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (input.value) {
-        socket.emit('chat message', input.value);
-        input.value = '';
-      }
-    });
+// Naslouchání na odeslání formuláře (odeslání zprávy)
+form.addEventListener('submit', (e) => {
+  e.preventDefault(); // Zabránění výchozímu chování formuláře (reload stránky)
+  if (input.value) { // Pokud pole pro text zprávy není prázdné
+    socket.emit('chat message', input.value); // Odeslat zprávu na server
+    input.value = ''; // Vyčistit pole pro text zprávy po odeslání
+  }
+});
 
-    socket.on('chat message', (msg) => {
-      const item = document.createElement('li');
-      item.textContent = msg;
-      messages.appendChild(item);
-      window.scrollTo(0, document.body.scrollHeight);
-    });
+// Naslouchání na příchod zprávy ze serveru
+socket.on('chat message', (msg) => {
+  // Vytvoření nového prvek <li> pro zobrazení zprávy
+  const item = document.createElement('li');
+  item.textContent = msg; // Nastavení textu zprávy do prvku
+  messages.appendChild(item); // Přidání prvku s zprávou do seznamu zpráv
+  window.scrollTo(0, document.body.scrollHeight); // Automatický scroll dolů na konec chatu
+});
 
-    socket.on("connect", () => {
-      console.log(socket.id);
-    });
+// Naslouchání na událost "connect" při úspěšném navázání spojení se serverem
+socket.on("connect", () => {
+  console.log(socket.id); // Vypsání ID klienta do konzole při úspěšném připojení
+});
