@@ -6,9 +6,15 @@ const { Server } = require('socket.io'); // Socket.io pro komunikaci v reálném
 var mysql = require('mysql2'); // MySQL2 pro komunikaci s databází
 const path = require('path') // Modul pro práci s cestami v souborovém systému
 const bodyParser = require('body-parser'); // Middleware pro zpracování požadavků s těly
+const session = require('express-session');
 
 // Inicializace Express aplikace
 const app = express();
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static('public'));
 
 // Vytvoření HTTP serveru pomocí Express aplikace
 const server = createServer(app);
@@ -16,33 +22,21 @@ const server = createServer(app);
 // Inicializace Socket.io na serveru
 const io = new Server(server);
 
-// Nastavení připojení k databázi MySQL
-const connection = mysql.createConnection({
-  host: '192.168.1.161', // Název nebo IP adresa serveru databáze
-  user: 'tomas.borowski', // Uživatelské jméno
-  password: 'tomasborowski55', // Heslo
-  database: 'tomas.borowski', // Název databáze
-  port: 3001
-})
+app.use(session({
+  secret: 'your_secret_key', // Změňte toto na skutečné tajemství.
+  resave: true,
+  saveUninitialized: true,
+}));
 
-// Definice cesty pro zpracování HTTP POST požadavku na vytvoření tabulky
-app.post('/signin', function (request, response, next) {
-  console.log(`Byl obdržen požadavek na vytvoření tabulky s loginem: ${request.body.login}`)
-   
-  // Aktualizace záznamu v tabulce
-  const login = request.body.login; // ID záznamu, který chcete aktualizovat
-  
-  const sqlQuery = `CREATE TABLE ${login} LIKE timetable`;
- 
-  // Vykonání dotazu do databáze
-  dbConnection.query(sqlQuery, (err, result) => {
-    if (err) {
-      console.error('Chyba při vytváření tabulky: ' + err.stack);
-      return;
-    }
-    console.log(`Tabulka s loginem: ${request.body.login} byla úspěšně vytvořena.`);
-  });
+// Nastavení připojení k databázi MySQL
+const connection = mysql.createConnection({ // Vytvoření připojení k databázi
+  host: '192.168.1.161', // Adresa hostitele databáze
+  user: 'petr.spacek', // Uživatelské jméno
+  password: 'Spakator445', // Heslo
+  database: 'chat', // Název databáze
+  port: 3001 // Port databáze
 });
+
 
 // Definice cesty pro zpracování HTTP GET požadavku na chatovou stránku
 app.get('/chat', (req, res) => {
@@ -64,6 +58,54 @@ io.on('connection', (socket) => {
     console.log('user ' + socket.id + ' disconnected');
   });
 });
+
+// Stránka pro registraci
+app.get('/register', (req, res) => {
+  res.render('register');
+});
+
+// Stránka pro zpracování registrace
+app.post('/register', (req, res) => {
+  const { username, password } = req.body;
+
+  // Příklad: Vytvoření nového uživatele v databázi
+  connection.query('INSERT INTO user (username, password) VALUES (?, ?)', [username, password], (error, results, fields) => {
+    if (error) {
+      console.error(error);
+      res.status(500).send('Chyba při registraci.');
+    } else {
+      console.log('Uživatel byl úspěšně registrován.');
+      res.redirect('/login'); // Po registraci přesměrovat na stránku přihlášení
+    }
+  });
+});
+
+// Stránka pro přihlášení
+app.get('/login', (req, res) => {
+  res.render('login.ejs');
+});
+
+// Stránka pro zpracování přihlášení
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Příklad: Ověření uživatele v databázi
+  connection.query('SELECT * FROM user WHERE username = ? AND password = ?', [username, password], (error, results, fields) => {
+    if (error) {
+      console.error(error);
+      res.status(500).send('Chyba při přihlášení.');
+    } else {
+      if (results.length > 0) {
+        // Úspěšné přihlášení
+        req.session.authenticated = true;
+        res.redirect('/chat'); // Přesměrovat na hlavní stránku
+      } else {
+        res.send('Nesprávné uživatelské jméno nebo heslo.');
+      }
+    }
+  });
+});
+
 
 // Spuštění HTTP serveru na portu 80
 server.listen(80, () => {
