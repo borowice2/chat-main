@@ -65,11 +65,11 @@
   </style>
 </head>
 <body>
-  <a href="/singin"><button>Nový</button></a>
+  <a href="/register"><button>Nový</button></a>
   <ul id="messages"></ul>
   <form id="form" action="">
     <!-- <label>jmeno</label><input id="jmeno"/> -->
-    <label>zprava: </label><input id="input" autocomplete="off" /><button>Send</button>
+    <input id="input" autocomplete="off" placeholder="Type your message..." /> <button>Send</button>
   </form>
   <script>
     const socket = io();
