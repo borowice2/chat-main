@@ -3,7 +3,7 @@
 
 <head>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Socket.IO chat</title>
+  <title>Špachat</title>
   <script src="/socket.io/socket.io.js"></script>
   <script src="client.js"></script>
   <style>
@@ -77,38 +77,6 @@
     const messages = document.getElementById('messages');
     const form = document.getElementById('form');
     const input =document.getElementById('input');
- 
-    // function signIn() {
-    //   const url = '/signin'; // Nahraďte tímto URL adresu, na kterou chcete poslat POST požadavek
-    //   let login = prompt("Zadejte login")
-    //   const data = {
-    //     login: login,
-    //     // další data, která chcete odeslat
-    //   };
-
-    //   const requestOptions = {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json', // Specifikujeme typ obsahu jako JSON
-    //       // další hlavičky, pokud jsou potřeba
-    //     },
-    //     body: JSON.stringify(data), // Převedeme objekt na JSON řetězec
-    //   };
-
-    //   fetch(url, requestOptions)
-    //     .then(response => {
-    //       if (!response.ok) {
-    //         throw new Error('Chyba při odesílání požadavku');
-    //       }
-    //       return response.json(); // Přečteme odpověd jako JSON
-    //     })
-    //     .then(data => {
-    //       console.log('Úspěšně odesláno:', data);
-    //     })
-    //     .catch(error => {
-    //       console.error('Chyba:', error);
-    //     });
-    // }
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();

@@ -26,6 +26,9 @@ app.use(session({
   secret: 'your_secret_key', // Změňte toto na skutečné tajemství.
   resave: true,
   saveUninitialized: true,
+  cookie:{
+    maxAge: 24*60*60*1000
+  }
 }));
 
 // Nastavení připojení k databázi MySQL
@@ -40,24 +43,14 @@ const connection = mysql.createConnection({ // Vytvoření připojení k databá
 
 // Definice cesty pro zpracování HTTP GET požadavku na chatovou stránku
 app.get('/chat', (req, res) => {
-  res.sendFile(join(__dirname, 'index.html'));
-});
-
-// Naslouchání na události připojení klienta k Socket.io
-io.on('connection', (socket) => {
-  // Naslouchání na událost 'chat message' pro přijetí zprávy od klienta
-  socket.on('chat message', (msg) => {
-    // Odeslání zprávy všem klientům připojeným k Socket.io
-    io.emit('chat message', socket.id + ": " + msg);
+  if (req.session.authenticated) {
+    res.sendFile(join(__dirname, 'index.html'));
+  } else {
+    res.status(403).send('Přístup odepřen. Přihlaste se nebo sezaregistrujte.');
+  }
   });
-});
 
-// Naslouchání na události odpojení klienta od Socket.io
-io.on('connection', (socket) => {
-  socket.on('disconnect', () => {
-    console.log('user ' + socket.id + ' disconnected');
-  });
-});
+
 
 // Stránka pro registraci
 app.get('/register', (req, res) => {
@@ -85,6 +78,8 @@ app.get('/login', (req, res) => {
   res.render('login.ejs');
 });
 
+let currentUsername;
+
 // Stránka pro zpracování přihlášení
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
@@ -98,6 +93,7 @@ app.post('/login', (req, res) => {
       if (results.length > 0) {
         // Úspěšné přihlášení
         req.session.authenticated = true;
+        currentUsername = username;
         res.redirect('/chat'); // Přesměrovat na hlavní stránku
       } else {
         res.send('Nesprávné uživatelské jméno nebo heslo.');
@@ -106,8 +102,26 @@ app.post('/login', (req, res) => {
   });
 });
 
+// Naslouchání na události připojení klienta k Socket.io
+io.on('connection', (socket) => {
+  // Naslouchání na událost 'chat message' pro přijetí zprávy od klienta
+  socket.on('chat message', (msg) => {
+    // Odeslání zprávy všem klientům připojeným k Socket.io
+    if (currentUsername) {
+      io.emit('chat message', currentUsername + " : " + msg);
+    } else {}
+    });
+  })
 
-// Spuštění HTTP serveru na portu 80
-server.listen(80, () => {
-  console.log('server running at port 80');
-});
+  // Naslouchání na události odpojení klienta od Socket.io
+  io.on('connection', (socket) => {
+    socket.on('disconnect', () => {
+      console.log('user ' + socket.id + ' disconnected');
+    });
+  });
+
+
+  // Spuštění HTTP serveru na portu 80
+  server.listen(80, () => {
+    console.log('server running at port 80');
+  });
