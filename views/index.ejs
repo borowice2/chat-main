@@ -3,10 +3,16 @@
 
 <head>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Špachat</title>
+  <title>Špačet</title>
   <script src="/socket.io/socket.io.js"></script>
   <script src="client.js"></script>
   <style>
+    a{
+      float: right;
+    }
+    button{
+      padding: 10px 10px 8px 10px;
+    }
     body {
       margin: 0;
       padding-bottom: 3rem;
@@ -65,12 +71,13 @@
   </style>
 </head>
 <body>
-  <a href="/register"><button>Nový</button></a>
+  <a href="/register"><button>login</button></a>
   <ul id="messages"></ul>
   <form id="form" action="">
     <!-- <label>jmeno</label><input id="jmeno"/> -->
     <input id="input" autocomplete="off" placeholder="Type your message..." /> <button>Send</button>
   </form>
+  
   <script>
     const socket = io();
 

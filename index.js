@@ -24,7 +24,7 @@ const io = new Server(server);
 
 app.use(session({
   secret: 'your_secret_key', // Změňte toto na skutečné tajemství.
-  resave: true,
+  resave: false,
   saveUninitialized: true,
   cookie:{
     maxAge: 24*60*60*1000
@@ -40,13 +40,22 @@ const connection = mysql.createConnection({ // Vytvoření připojení k databá
   port: 3001 // Port databáze
 });
 
+app.get('/setSession', (req, res) => {
+  req.session.username = currentUsername
+  res.send(req.session.username)
+});
+
+app.get('/setSession', (req, res) => {
+  const username = req.session.username;
+  res.send('uživatel ze sešny:' + username)
+});
 
 // Definice cesty pro zpracování HTTP GET požadavku na chatovou stránku
 app.get('/chat', (req, res) => {
   if (req.session.authenticated) {
-    res.sendFile(join(__dirname, 'index.html'));
+    res.render('index');
   } else {
-    res.status(403).send('Přístup odepřen. Přihlaste se nebo sezaregistrujte.');
+    res.sendFile(join(__dirname, 'failedLogin.html'));
   }
   });
 
@@ -76,6 +85,7 @@ app.post('/register', (req, res) => {
 // Stránka pro přihlášení
 app.get('/login', (req, res) => {
   res.render('login.ejs');
+  
 });
 
 let currentUsername;
@@ -83,9 +93,9 @@ let currentUsername;
 // Stránka pro zpracování přihlášení
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-
+  req.session.user = 'user1'
   // Příklad: Ověření uživatele v databázi
-  connection.query('SELECT * FROM user WHERE username = ? AND password = ?', [username, password], (error, results, fields) => {
+  connection.query('SELECT * FROM user WHERE (LOWER(username) = ? OR UPPER(username) = ?) AND (LOWER(password) = ? OR UPPER(password) = ?)', [username, username, password, password], (error, results, fields) => {
     if (error) {
       console.error(error);
       res.status(500).send('Chyba při přihlášení.');
@@ -96,7 +106,7 @@ app.post('/login', (req, res) => {
         currentUsername = username;
         res.redirect('/chat'); // Přesměrovat na hlavní stránku
       } else {
-        res.send('Nesprávné uživatelské jméno nebo heslo.');
+        res.sendFile(join(__dirname, 'failedLogin.html'))
       }
     }
   });
